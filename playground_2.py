@@ -37,12 +37,12 @@ X_train, X_test, _, _ = train_test_split(X, y, test_size=0.30, random_state=42)
 
 
 # regressor = MSVR(C=1000, epsilon=0.001)
-# regressor = Ridge(alpha=3290)
+# regressor = Ridge(alpha=0.1)
 #
 # regressor.fit(X_train_norm, y_train)
 #
 # pred = regressor.predict(X_test_norm)
-#
+# #
 # errors = []
 # for i in range(len(pred)):
 #     centroids = pred[i]
@@ -62,24 +62,27 @@ X_train, X_test, _, _ = train_test_split(X, y, test_size=0.30, random_state=42)
 # print(f"Median Error: {np.median(errors)*1000} meters")
 # print(f"R2 Score: {r2_score(y_test, pred)}")
 
-regressor = ElasticNet()
+regressor = Lasso()
 
 # Set up the parameter grid for alpha values
-param_grid = {'alpha': np.logspace(-5, 9, num=1000), 'l1_ratio': np.logspace(-2, 2, 10)}
+# param_grid = {'alpha': np.logspace(-5, 0, num=100), 'l1_ratio': np.logspace(-3, 0, 10)}
+param_grid = {'alpha': np.logspace(-5, 0, 200)}
+
 
 # Perform grid search with cross-validation
 grid_search = GridSearchCV(regressor, param_grid, cv=5, scoring='neg_mean_absolute_error')
-grid_search.fit(X_train_norm, y_train)
+grid_search.fit(X_train_exp, y_train)
 
 # Get the best alpha value
 best_alpha = grid_search.best_params_['alpha']
+# best_l1_ratio = grid_search.best_params_['l1_ratio']
 
 # Fit the model with the best alpha
-best_regressor = ElasticNet(alpha=best_alpha)
-best_regressor.fit(X_train_norm, y_train)
+best_regressor = Ridge(alpha=best_alpha)
+best_regressor.fit(X_train_exp, y_train)
 
 # Make predictions
-pred = best_regressor.predict(X_test_norm)
+pred = best_regressor.predict(X_test_exp)
 
 # Calculate errors
 errors = []
@@ -89,7 +92,8 @@ for i in range(len(pred)):
     errors.append(error)
 
 # Print results
-print(f"Best Alpha: {best_alpha}")
+print(f"Best alpha: {best_alpha}")
+# print(f"Best L1_ratio: {best_l1_ratio}")
 print(f"Mean Error: {np.mean(errors)*1000:.2f} meters")
 print(f"Median Error: {np.median(errors)*1000:.2f} meters")
 print(f"R2 Score: {r2_score(y_test, pred):.4f}")

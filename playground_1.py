@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import PolynomialFeatures
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.multioutput import MultiOutputRegressor
@@ -36,13 +37,13 @@ X_train_exp, X_test_exp, _, _ = train_test_split(X_exp, y, test_size=0.30, rando
 X_train_pow, X_test_pow, _, _ = train_test_split(X_pow, y, test_size=0.30, random_state=42)
 X_train, X_test, _, _ = train_test_split(X, y, test_size=0.30, random_state=42)
 
-
 # regressor = MSVR(C=1000, epsilon=0.001)
-regressor = Ridge(alpha=3290)
+poly = PolynomialFeatures(degree=2)
+regressor = LinearRegression()
 
-regressor.fit(X_train_norm, y_train)
+regressor.fit(poly.fit_transform(X_train_exp), y_train)
 
-pred = regressor.predict(X_test_norm)
+pred = regressor.predict(poly.fit_transform(X_test_exp))
 
 errors = []
 for i in range(len(pred)):
